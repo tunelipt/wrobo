@@ -365,12 +365,13 @@ class Robo:
         if side:
             if side == '+':
                 bit = {"X": "BIT0", "Y": "BIT13", "Z": "BIT5"}
-            elif side == '-':
+            else: #side == '-':
                 bit = {"X": "BIT7", "Y": "BIT3", "Z": "BIT14"}
-        elif x > x0:
-            bit = {"X": "BIT0", "Y": "BIT3", "Z": "BIT5"}
-        elif x < x0:
-            bit = {"X": "BIT7", "Y": "BIT13", "Z": "BIT14"}
+        else:
+            if x >= x0:
+                bit = {"X": "BIT0", "Y": "BIT3", "Z": "BIT5"}
+            else: # x < x0:
+                bit = {"X": "BIT7", "Y": "BIT13", "Z": "BIT14"}
         return bit[axis]
     
 if __name__ == "__main__":
