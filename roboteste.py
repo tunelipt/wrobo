@@ -5,7 +5,6 @@ class Robo:
     
     def __init__(self, passommX=1405.0, passommY=469.17, passommZ=1975.0, 
                  PX = 'P12544', PY = 'P12288', PZ = 'P12800'):
-
         self.x = 0
         self.y = 0
         self.z = 0
@@ -21,17 +20,26 @@ class Robo:
         O parametro s define o comando incremental na linguagem acr"""
         print("move(x={}, y={}, z={}, a={}, r={}, sync={})".format(x, y, z, a, r, sync))
         if r:
-            self.x += x
-            self.y += y
-            self.z += z
+            if x != '':
+                self.x += x
+            if y != '':
+                self.y += y
+            if z != '':
+                self.z += z
         elif a:
-            self.x = x
-            self.y = y
-            self.z = z
+            if x != '':
+                self.x = x
+            if y != '':
+                self.y = y
+            if z != '':
+                self.z = z
         else:
-            self.x = x + self.x0
-            self.y = y + self.y0
-            self.z = z + self.z0
+            if x != '':
+                self.x = x + self.x0
+            if y != '':
+                self.y = y + self.y0
+            if z != '':
+                self.z = z + self.z0
             
         return None
     
@@ -62,7 +70,7 @@ class Robo:
     def set_reference(self, xref=0, yref=0, zref=0, eixo=''):
         """Define a posicao de referencia"""
 
-        print("set_reference(xref={}, yref={}, zref={}, eixo={}".format(xref, yref, zref, eixo))
+        print("set_reference(xref={}, yref={}, zref={}, eixo={})".format(xref, yref, zref, eixo))
         p = dict(x=self.x, y=self.y, z=self.z)
         if eixo == 'X' or eixo == '':
             self.x0 = p['x'] - xref
@@ -103,7 +111,7 @@ class Robo:
     
     def clear(self):
         print("clear()")
-        returnn None
+        return None
     
     def waitUntilDone(self):
         print("waitUntilDone()")
