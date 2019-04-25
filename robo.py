@@ -373,6 +373,9 @@ class Robo:
             else: # x < x0:
                 bit = {"X": "BIT7", "Y": "BIT13", "Z": "BIT14"}
         return bit[axis]
+    def ping(self):
+        return 123
+    
     
 if __name__ == "__main__":
     print("Creating server ...")

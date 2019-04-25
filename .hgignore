@@ -1,2 +1,7 @@
 syntax: glob
+__pycache__/*
 *.pyc
+*~
+*.spec
+dist/*
+build/*

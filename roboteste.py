@@ -13,7 +13,10 @@ class Robo:
         self.y0 = 0
         self.z0 = 0
 
-        
+    def connect(self):
+        print("connect()")
+        return None
+    
     def move(self, x='', y='', z='', a='', r=False, sync=False):
         """Inicializa a movimentacao do robo verificando todos os eixos
         
@@ -138,5 +141,8 @@ class Robo:
             self.z0 = 0
             self.z = 0
         return None
+    def ping(self):
+        return 123
+    
         
     

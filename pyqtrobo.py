@@ -120,7 +120,7 @@ class Welcome(QMainWindow):
     def new_wind(self):
         """Fecha a janela de boas vindas e inicia a janela principal"""
         self.close()
-        self.win = Window(self.robo)
+        self.win = RoboWindow(self.robo)
         self.win.show()
     
     def sair(self):
@@ -128,11 +128,11 @@ class Welcome(QMainWindow):
         
         qApp.quit()
         
-class Window(QMainWindow):
+class RoboWindow(QMainWindow):
     """Classe implementada a partir da classe QWidget, gera a tela inicial dispondo
     os grupos criados em um *grid layout*"""
     
-    def __init__(self, robo, parent=None):
+    def __init__(self, robo, msg, parent=None):
         """Define os grupos dentro do *grid layout*"""
         
         self.robo = robo
@@ -171,7 +171,7 @@ class Window(QMainWindow):
         
         self.widget.setLayout(grid)
         
-        self.setWindowTitle("Movimentador do Tunel")
+        self.setWindowTitle("Movimentador do Tunel - {}".format(msg))
         self.resize(640, 480)
         
     
