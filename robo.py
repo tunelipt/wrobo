@@ -196,7 +196,7 @@ class Robo:
         p = self.abs_position()
         return dict(x=p['x']-self.x0, y=p['y']-self.y0, z=p['z']-self.z0)
     
-    def set_reference(self, eixo=''):
+    def set_reference(self, xref=0, yref=0, zref=0, eixo=''):
         """Define a posicao de referencia"""
         
         if self.eixo1.lim_i and self.eixo1.lim_s:
@@ -210,11 +210,11 @@ class Robo:
             self.eixo3.lim_s -= self.position['z']
         p = self.abs_position()
         if eixo == 'X' or eixo == '':
-            self.x0 = p['x']
+            self.x0 = p['x'] - xref
         if eixo == 'y' or eixo == '':
-            self.y0 = p['y']
+            self.y0 = p['y'] - yref
         if eixo == 'Z' or eixo == '':
-            self.z0 = p['z']
+            self.z0 = p['z'] - zref
     def set_abs_reference(self):
         """Define a posicao de referencia absoluta"""
         
