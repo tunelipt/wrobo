@@ -32,7 +32,6 @@ class RoboServer:
         
     def start(self):
         print("Starting XML-RPC Server...")
-        #self.server = SimpleXMLRPCServer(("192.168.0.103", 9595), allow_none=True)
         self.server = SimpleXMLRPCServer((self.ip, self.port), allow_none=True)
         self.server.register_instance(self.robo)
         print("Serving XML-RPC...")

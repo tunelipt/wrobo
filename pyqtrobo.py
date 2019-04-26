@@ -16,127 +16,18 @@ from PyQt5.QtWidgets import (QLabel, QGridLayout, QWidget, QVBoxLayout, QHBoxLay
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator
 import time
-
-
-class client_setting(QWidget):
-    """client_setting exibe as entradas de texto para a definicao do endereço e porta utilizados
-    pela comunicação XMLRPC"""
-    
-    def __init__(self, inicial=False):
-        """Funcao __init__ para definir o layout geral"""
-        
-        self.inicial = inicial
-        super().__init__()
-        self.title = "Configuracoes do cliente"
-        
-        self.textboxip = QLineEdit(self)
-        self.labelip = QLabel('Endereço do Server:')
-        self.textboxip.setText('localhost')
-        self.textboxip.setMaximumWidth(100)
-        
-        self.textboxport = QLineEdit(self)
-        self.textboxport.setText('9595')
-        self.labelport = QLabel('Porta:')
-        self.textboxport.setMaximumWidth(100)
-        
-        self.button_end = QPushButton('Sair')
-        self.button_conf = QPushButton('Configurar')
-        
-        column = QVBoxLayout()
-        row1 = QHBoxLayout()
-        row2 = QHBoxLayout()
-
-        column.addLayout(row1)
-        row1.addWidget(self.labelip)
-        row1.addWidget(self.textboxip)
-        
-        column.addLayout(row2)
-        row2.addWidget(self.labelport)
-        row2.addWidget(self.textboxport)
-        
-        column.addWidget(self.button_conf)
- 
-        column.addStretch(1)
-        column.addWidget(self.button_end)
-       
-        self.setLayout(column)
-
-class Welcome(QMainWindow):
-    """Classe implementada a partir da classe QMainWindow e gera a tela inicial,
-    responsavel pela configuracao inicial dos argumentos utilizados pelo XMLRPC"""
-    
-    def __init__(self, parent=None):
-        """Funcao __init__ para definir o layout geral
-        
-        Keyword argumets:
-        robo -- arquivo do qual chamam-se os comandos enviados ao robo
-        """
-        self.inicial = True
-        super().__init__(parent)
-        self.setWindowTitle("Configurações Iniciais")
-        self.setGeometry(50, 50, 350, 400)
-        
-        self.widget = client_setting(self.inicial)
-        self.setCentralWidget(self.widget)
-        
-        self.widget.button_conf.clicked.connect(self.configurar)
-        self.widget.button_end.clicked.connect(self.sair)
-        
-        self.setWindowIcon(QIcon('ipt.jpg'))
-        
-        self.show()
-
-    def configurar(self):
-        """Essa funcao e chamada pelo botao *Configurar* e toma os valores das entradas de texto
-        como os novos valores de endereco e porta"""
-        if self.widget.textboxip.text():
-            self.ip = self.widget.textboxip.text()
-        else:
-            self.ip = "10.5.37.38"
-            
-        if self.widget.textboxport.text():
-            self.port = self.widget.textboxport.text()
-        else:
-            self.port = 9595
-            
-        self.initUI(self.ip, self.port)
-        self.widget.textboxip.setText('')
-        self.widget.textboxport.setText('')
-        
-
-    def initUI(self, ip, port):
-        """initUI fecha a janela atual e abre a interface reponsável pelos comandos ao robo,
-        definindo a nova comunicação com o servidor"""
-        
-        global pr
-        if pr:
-            pr.terminate()
-        pr = Process(target=roboxmlrpc.start_server, args=(ip, port))
-        pr.start()
-    
-        self.robo = xmlrpc.client.ServerProxy("http://"+str(ip)+":"+str(port))
-        self.new_wind()
-        
-    def new_wind(self):
-        """Fecha a janela de boas vindas e inicia a janela principal"""
-        self.close()
-        self.win = RoboWindow(self.robo)
-        self.win.show()
-    
-    def sair(self):
-        """Finaliza o processo de comunicação e encerra o aplicativo"""
-        
-        qApp.quit()
         
 class RoboWindow(QMainWindow):
     """Classe implementada a partir da classe QWidget, gera a tela inicial dispondo
     os grupos criados em um *grid layout*"""
     
-    def __init__(self, robo, msg, parent=None):
+    def __init__(self, robo, msg, process, parent=None):
         """Define os grupos dentro do *grid layout*"""
-        
+
+        self.process = process
         self.robo = robo
-        super(Window, self).__init__(parent)
+
+        super(RoboWindow, self).__init__(parent)
         
         #Layout Geral
         self.widget = QWidget()
@@ -652,7 +543,7 @@ class RoboWindow(QMainWindow):
         
         Chamando o comando por meio do arquivo passado por *self.robo*"""
         clickedButton = self.sender()
-        signal = clickedButton.text()[-1]
+        sinal = clickedButton.text()[-1]
         self.homeClicked(sinal, 'X')
         self.homeClicked(sinal, 'Y')
         self.homeClicked(sinal, 'Z')
@@ -728,7 +619,8 @@ class RoboWindow(QMainWindow):
         self.absposClicked(True)
         
     def sair(self):
-        pr.terminate()
+        if self.process is not None:
+            self.process.terminate()
         qApp.quit()
         
 import xmlrpc.client

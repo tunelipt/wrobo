@@ -15,12 +15,12 @@ import time
 
 import ipportconfig
 
-import pyqtmesa
+import pyqtrobo
 
 import xmlrpc.client
    
 from multiprocessing import Process, freeze_support
-import mesaxmlrpc
+import roboxmlrpc
 import argparse
 
 class WRoboServer(QMainWindow):
@@ -63,7 +63,7 @@ class WRoboServer(QMainWindow):
         brow = QHBoxLayout()
         
         if not self.client:
-            self.rpc = ipportconfig.IPConfig(True, "XML-RPC", server=True, ip=self.initvals['ip'],
+            self.rpc = ipportconfig.IPConfig(server=True, title="XML-RPC", ip=self.initvals['ip'],
                                              port=self.initvals['port'], parent=self)
             self.check_rpc = QCheckBox("Usar XML-RPC")
             self.check_rpc.stateChanged.connect(self.rpc_check_changed)
@@ -86,7 +86,7 @@ class WRoboServer(QMainWindow):
             self.widget.setLayout(vbox)
         else: # cliente
             self.check_rpc = None
-            self.rpc = ipportconfig.IPConfig(False, "XML-RPC Server", self.initvals['ip'],
+            self.rpc = ipportconfig.IPConfig("XML-RPC Server", False, self.initvals['ip'],
                                              self.initvals['port'], parent=self)
             vbox.addWidget(self.rpc)
             
@@ -118,10 +118,9 @@ class WRoboServer(QMainWindow):
         err = False
         msg = "http://{}:{}".format(xaddr, xport)
         try:
-            if m.ping() == 123:
-                self.robo = m
+            if self.robo.ping() == 123:
                 self.close()
-                self.win = pyqtmesa.RoboWindow(self.robo, msg, self.process)
+                self.win = pyqtrobo.RoboWindow(self.robo, msg, self.process)
                 self.win.show()
                 return
             else:
@@ -136,11 +135,6 @@ class WRoboServer(QMainWindow):
                 
         
     def init_server(self):
-        port = self.com.comport()
-        baud = self.com.baudrate()
-        size = self.com.bytesize()
-        parity = self.com.parity()
-        stopbits = self.com.stopbits()
         pr = None
         m = None
         self.process = None
@@ -155,7 +149,7 @@ class WRoboServer(QMainWindow):
             ntries = 0
             while True:
                 ntries = ntries + 1
-                pr = Process(target=mesaxmlrpc.start_server, args=(self.test, xaddr, xport, port, baud, size, parity, stopbits))
+                pr = Process(target=roboxmlrpc.start_server, args=(self.test, xaddr, xport))
                 pr.start()
 
                 time.sleep(5)
@@ -174,15 +168,14 @@ class WRoboServer(QMainWindow):
                     time.sleep(4)
             
         else:
-            #import mesateste as mesa
             if self.test:
-                import mesateste as mesa
-                msg = "TESTE: {}".format(port)
+                import roboteste as robo
+                msg = "TESTE"
             else:
-                import mesa
-                msg = "{}".format(port)
+                import robo
+                msg = ""
             
-            m = mesa.Robo(port, baud, size, parity, stopbits)
+            m = robo.Robo()
             time.sleep(3)
             try:
                 if m.ping() != 123:
@@ -192,10 +185,10 @@ class WRoboServer(QMainWindow):
                 MessageBox.Ok)
                 m = None
         self.process = pr
-        self.mesa = m
+        self.robo = m
         if m is not None:
             self.close()
-            self.win = pyqtmesa.MainWindow(self.mesa, msg, self.process)
+            self.win = pyqtrobo.RoboWindow(self.robo, msg, self.process)
             self.win.show()
             return
         else:
@@ -214,7 +207,7 @@ if __name__ == '__main__':
     parser.add_argument("-t", "--test", help="Interface teste do robô cartesiano do túnel de vento",
                         action="store_true")
     parser.add_argument("-i", "--ip", help="Endereço IP do servidor XML-RPC", default="localhost")
-    parser.add_argument("-p", "--port", help="Porta XML-RPC do servidor XML-RPC", default=9596, type=int)
+    parser.add_argument("-p", "--port", help="Porta XML-RPC do servidor XML-RPC", default=9595, type=int)
     parser.add_argument("-n", "--serverless", help="Não inicie o servidor XML-RPC", action="store_true")
     parser.add_argument("-c", "--client", help="Criar interface para cliente de servidor XML-RPC", action="store_true")
     
@@ -232,7 +225,7 @@ if __name__ == '__main__':
     # Simulate something that takes time
     time.sleep(1)
     
-    win = WMesaServer(args.test, args.ip, args.port, args.comport, not args.serverless, args.client)
+    win = WRoboServer(args.test, args.ip, args.port, not args.serverless, args.client)
     win.show()
     splash.finish(win)
 
