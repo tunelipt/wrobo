@@ -339,8 +339,8 @@ class RoboWindow(QMainWindow):
         self.slidermx.setFocusPolicy(Qt.StrongFocus)
         self.slidermx.setSingleStep(10)
         self.slidermx.setValue(0)
-        self.slidermx.setMinimum(-1000)
-        self.slidermx.setMaximum(1000)
+        self.slidermx.setMinimum(-5000)
+        self.slidermx.setMaximum(5000)
         
         self.move_x = QLineEdit(self)
         self.move_x.setText('0')
@@ -351,12 +351,14 @@ class RoboWindow(QMainWindow):
         
         self.posx = QLabel('0')
         self.posx.setAlignment(Qt.AlignCenter)
-        labelx = QLabel("X")
-        labelx.setMinimumHeight(40)
+        self.labelxbutton = QPushButton("X")
+        self.labelxbutton.clicked.connect(self.moveXClicked)
+        
+        #labelx.setMinimumHeight(40)
 
         vbox.addWidget(self.posx)
         vbox.addLayout(hbox1)
-        hbox1.addWidget(labelx,0.5)
+        hbox1.addWidget(self.labelxbutton,0.5)
         hbox1.addWidget(self.slidermx,7)
         hbox1.addWidget(self.move_x,1)
         
@@ -369,8 +371,8 @@ class RoboWindow(QMainWindow):
         self.slidermy.setFocusPolicy(Qt.StrongFocus)
         self.slidermy.setSingleStep(10)
         self.slidermy.setValue(0)
-        self.slidermy.setMinimum(-2500)
-        self.slidermy.setMaximum(2500)
+        self.slidermy.setMinimum(-2600)
+        self.slidermy.setMaximum(2600)
         
         self.move_y = QLineEdit(self)
         self.move_y.setText('0')
@@ -380,12 +382,13 @@ class RoboWindow(QMainWindow):
         
         self.posy = QLabel('0')
         self.posy.setAlignment(Qt.AlignCenter)
-        labely = QLabel("Y")
-        labely.setMinimumHeight(40)
+        self.labelybutton = QPushButton("Y")
+        self.labelybutton.clicked.connect(self.moveYClicked)
+        #labely.setMinimumHeight(40)
 
         vbox.addWidget(self.posy)
         vbox.addLayout(hbox2)
-        hbox2.addWidget(labely,0.5)
+        hbox2.addWidget(self.labelybutton,0.5)
         hbox2.addWidget(self.slidermy,7)
         hbox2.addWidget(self.move_y,1)
         
@@ -399,8 +402,8 @@ class RoboWindow(QMainWindow):
         self.slidermz.setFocusPolicy(Qt.StrongFocus)
         self.slidermz.setSingleStep(10)
         self.slidermz.setValue(0)
-        self.slidermz.setMinimum(-250)
-        self.slidermz.setMaximum(250)
+        self.slidermz.setMinimum(-600)
+        self.slidermz.setMaximum(600)
 
         self.move_z = QLineEdit(self)
         self.move_z.setText('0')
@@ -410,12 +413,13 @@ class RoboWindow(QMainWindow):
         
         self.posz = QLabel('0')
         self.posz.setAlignment(Qt.AlignCenter)
-        labelz = QLabel("Z")
-        labelz.setMinimumHeight(40)
+        self.labelzbutton = QPushButton("Z")
+        self.labelzbutton.clicked.connect(self.moveZClicked)
+        #labelz.setMinimumHeight(40)
         
         vbox.addWidget(self.posz)
         vbox.addLayout(hbox3)
-        hbox3.addWidget(labelz,0.5)
+        hbox3.addWidget(self.labelzbutton,0.5)
         hbox3.addWidget(self.slidermz,7)
         hbox3.addWidget(self.move_z,1)
         
@@ -557,6 +561,27 @@ class RoboWindow(QMainWindow):
         self.robo.move(float(self.slidermx.value()), float(self.slidermy.value()), float(self.slidermz.value()))
         self.posClicked(True)
         self.absposClicked(True)
+
+    def moveXClicked(self):
+        x = float(self.slidermx.value())
+        self.robo.move(x)
+        self.posClicked(True)
+        self.absposClicked(True)
+        return None
+
+    def moveYClicked(self):
+        y = float(self.slidermy.value())
+        self.robo.move('', y)
+        self.posClicked(True)
+        self.absposClicked(True)
+        return None
+
+    def moveZClicked(self):
+        z = float(self.slidermz.value())
+        self.robo.move('', '', z)
+        self.posClicked(True)
+        self.absposClicked(True)
+        return None
         
     def homeClicked(self, sinal = None, eixo = None):
         """Envia o robo a posição de referencia em X.
@@ -597,8 +622,9 @@ class RoboWindow(QMainWindow):
         if changed:
             self.text1 = ''
             self.changed = False
+            self.labelp.setText(self.text1)
         else:
-            self.text1 = "X = {} Y = {} Z = {}".format(format(p['x'], '.3f'),format(p['y'], '.3f'), format(p['z'], '.3f'))
+            self.text1 = "X = {} Y = {} Z = {}".format(format(p['x'], '.1f'),format(p['y'], '.1f'), format(p['z'], '.1f'))
             self.labelp.setText(self.text1)
         
     def absposClicked(self, changed = False):
@@ -613,8 +639,9 @@ class RoboWindow(QMainWindow):
         if changed:
             self.text2 = ''
             self.changed = False
+            self.labelabsp.setText('')
         else:
-            self.text2 = "X = {} Y = {} Z = {}".format(format(p['x'], '.3f'),format(p['y'], '.3f'), format(p['z'], '.3f'))
+            self.text2 = "X = {} Y = {} Z = {}".format(format(p['x'], '.1f'),format(p['y'], '.1f'), format(p['z'], '.1f'))
             self.labelabsp.setText(self.text2)
         
     def refClicked(self):
