@@ -14,7 +14,7 @@ import sys
 from PyQt5.QtWidgets import (QLabel, QGridLayout, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, qApp, QMenu,
                              QGroupBox, QPushButton, QApplication, QSlider, QMainWindow, QSplashScreen, QAction)
 from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator
+from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator, QDoubleValidator
 import time
         
 class RoboWindow(QMainWindow):
@@ -128,7 +128,7 @@ class RoboWindow(QMainWindow):
         self.sliderx.setSingleStep(10)
         self.sliderx.setValue(10)
         self.sliderx.setMinimum(0)
-        self.sliderx.setMaximum(100)
+        self.sliderx.setMaximum(1000)
 
         self.labelx = QLabel('10')
         self.labelx.setMinimumHeight(40)
@@ -160,7 +160,7 @@ class RoboWindow(QMainWindow):
         self.slidery.setSingleStep(10)
         self.slidery.setValue(10)
         self.slidery.setMinimum(0)
-        self.slidery.setMaximum(100)
+        self.slidery.setMaximum(500)
 
         self.labely = QLabel('10')
         self.labely.setMinimumHeight(30)
@@ -190,7 +190,7 @@ class RoboWindow(QMainWindow):
         self.sliderz.setSingleStep(10)
         self.sliderz.setValue(10)
         self.sliderz.setMinimum(0)
-        self.sliderz.setMaximum(100)
+        self.sliderz.setMaximum(200)
         
         self.labelz = QLabel('10')
         self.labelz.setMinimumHeight(40)
@@ -220,13 +220,48 @@ class RoboWindow(QMainWindow):
         """
         
         refgroup = QGroupBox('Referencia')
+
         
         vbox = QVBoxLayout()
+        hbox_x = QHBoxLayout()
+        hbox_y = QHBoxLayout()
+        hbox_z = QHBoxLayout()
+
+        labx = QLabel("Xref")
+        laby = QLabel("Yref")
+        labz = QLabel("Zref")
+
+        self.refxtext = QLineEdit(self)
+        self.refxtext.setText("0")
+        validatorx = QDoubleValidator()
+        self.refxtext.setValidator(validatorx)
+        hbox_x.addWidget(labx)
+        hbox_x.addWidget(self.refxtext)
+
+        self.refytext = QLineEdit(self)
+        self.refytext.setText("0")
+        validatory = QDoubleValidator()
+        self.refytext.setValidator(validatory)
+        hbox_y.addWidget(laby)
+        hbox_y.addWidget(self.refytext)
+
+        self.refztext = QLineEdit(self)
+        self.refztext.setText("0")
+        validatorz = QDoubleValidator()
+        self.refztext.setValidator(validatorz)
+        hbox_z.addWidget(labz)
+        hbox_z.addWidget(self.refztext)
+        
         
         self.buttonref = QPushButton("Ponto atual como referencia")
         self.buttonref.clicked.connect(self.refClicked)
         self.buttonabsref = QPushButton("Referencia absoluta")
         self.buttonabsref.clicked.connect(self.absrefClicked)
+
+        vbox.addLayout(hbox_x)
+        vbox.addLayout(hbox_y)
+        vbox.addLayout(hbox_z)
+        
         vbox.addWidget(self.buttonref)
         vbox.addWidget(self.buttonabsref)
         refgroup.setLayout(vbox)
@@ -586,10 +621,20 @@ class RoboWindow(QMainWindow):
         """Define a posicao atual como referencia para o robo.
         
         Chamando o comando por meio do arquivo passado por *self.robo*"""
+
+        xref = float(self.refxtext.text())
+        yref = float(self.refytext.text())
+        zref = float(self.refztext.text())
         
         self.posClicked(True)
         self.absposClicked(True)
-        self.robo.set_reference()
+
+        self.robo.set_reference(xref, yref, zref)
+
+        self.refxtext.setText("0")
+        self.refytext.setText("0")
+        self.refztext.setText("0")
+        
         
     def absrefClicked(self):
         """Define a posicao atual como referencia absoluta para o robo.
