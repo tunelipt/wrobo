@@ -53,7 +53,7 @@ class WRoboServer(QMainWindow):
         self.process = None
         self.robo = None
         
-        self.setWindowIcon(QIcon('ipt.jpg'))
+        self.setWindowIcon(QIcon('ipt-wrobo.ico'))
         self.show()
     
     def draw_gui(self):
