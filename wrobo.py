@@ -140,32 +140,31 @@ class WRoboServer(QMainWindow):
         self.process = None
         self.initserver = self.check_rpc.isChecked()
         msg = ''
+        
         if self.initserver:
             xaddr = self.rpc.ipaddr().strip()
             xport = self.rpc.port()
 
             msg = "http://{}:{}".format(xaddr, xport)
-
-            ntries = 0
-            while True:
-                ntries = ntries + 1
-                pr = Process(target=roboxmlrpc.start_server, args=(self.test, xaddr, xport))
-                pr.start()
-
-                time.sleep(5)
-                serv = "http://{}:{}".format(xaddr, xport)
-                m = xmlrpc.client.ServerProxy(serv)
+            pr = Process(target=roboxmlrpc.start_server, args=(self.test, xaddr, xport))
+            pr.start()
+            serv = "http://{}:{}".format(xaddr, xport)
+            m = xmlrpc.client.ServerProxy(serv)
+            success = True
+            for ntries in range(20):
+                time.sleep(1)
                 try:
                     if m.ping() == 123:
+                        success = True
                         break
                 except:
-                    pr.terminate()
-                    QMessageBox.warning(self, 'Erro', "Não foi possível iniciar o servidor XML-RPC. Tentando novamente", QMessageBox.Ok)
-                    if ntries > 4:
-                        pr = None
-                        m = None
-                        break
-                    time.sleep(4)
+                    print("Não Conseguiu conectar. Tentanto novamente...")
+                    success = False
+            if not success:
+                pr.terminate()
+                QMessageBox.critical(self, 'Erro', "Não foi possível iniciar o servidor XML-RPC", QMessageBox.Ok)
+                pr = None
+                m = None
             
         else:
             if self.test:
@@ -176,14 +175,20 @@ class WRoboServer(QMainWindow):
                 msg = ""
             
             m = robo.Robo()
-            time.sleep(3)
-            try:
-                if m.ping() != 123:
-                    raise RuntimeError("Não comunicou")
-            except:
-                QMessage.critical(self, 'Erro', "Não foi possível iniciar o servidor XML-RPC",
-                MessageBox.Ok)
+            success = True
+            for ntries in range(20):
+                time.sleep(1)
+                try:
+                    if m.ping() == 123:
+                        success = True
+                        break
+                    except:
+                        print("Não conseguiu conectar. Tentando novamente ...")
+                        success = False
+            if not success:
+                QMessage.critical(self, 'Erro', "Não foi possível iniciar o robô",  MessageBox.Ok)
                 m = None
+            
         self.process = pr
         self.robo = m
         if m is not None:
