@@ -363,7 +363,7 @@ class RoboWindow(QMainWindow):
         hbox1.addWidget(self.move_x,1)
         
         self.move_x.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidermx))
-        self.slidermx.valueChanged[int].connect(lambda value: self.changeValue(value, self.posx))
+        self.slidermx.valueChanged[int].connect(lambda value: self.changeValue(value, self.posx, self.move_x))
         self.slidermx.setMinimumHeight(40)
         
         #Definicao do slidery
@@ -393,7 +393,7 @@ class RoboWindow(QMainWindow):
         hbox2.addWidget(self.move_y,1)
         
         self.move_y.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidermy))
-        self.slidermy.valueChanged[int].connect(lambda value: self.changeValue(value, self.posy))
+        self.slidermy.valueChanged[int].connect(lambda value: self.changeValue(value, self.posy, self.move_y))
         self.slidermy.setMinimumHeight(40)
 
         
@@ -424,7 +424,7 @@ class RoboWindow(QMainWindow):
         hbox3.addWidget(self.move_z,1)
         
         self.move_z.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidermz))
-        self.slidermz.valueChanged[int].connect(lambda value: self.changeValue(value, self.posz))
+        self.slidermz.valueChanged[int].connect(lambda value: self.changeValue(value, self.posz, self.move_z))
         self.slidermz.setMinimumHeight(40)
         
         movegroup.setLayout(vbox)

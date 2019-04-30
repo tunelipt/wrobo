@@ -114,7 +114,6 @@ class WRoboServer(QMainWindow):
         time.sleep(1)
         serv = "http://{}:{}".format(xaddr, xport)
         self.robo = xmlrpc.client.ServerProxy(serv)
-        self.process = None
         err = False
         msg = "http://{}:{}".format(xaddr, xport)
         for ntries in range(10):
@@ -153,22 +152,10 @@ class WRoboServer(QMainWindow):
             pr = Process(target=roboxmlrpc.start_server, args=(self.test, xaddr, xport))
             pr.start()
             serv = "http://{}:{}".format(xaddr, xport)
+
+            self.process = pr
+            return self.init_client()
             m = xmlrpc.client.ServerProxy(serv)
-            success = True
-            for ntries in range(20):
-                time.sleep(1)
-                try:
-                    if m.ping() == 123:
-                        success = True
-                        break
-                except:
-                    print("Não Conseguiu conectar. Tentanto novamente...")
-                    success = False
-            if not success:
-                pr.terminate()
-                QMessageBox.critical(self, 'Erro', "Não foi possível iniciar o servidor XML-RPC", QMessageBox.Ok)
-                pr = None
-                m = None
             
         else:
             if self.test:
