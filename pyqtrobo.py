@@ -124,7 +124,7 @@ class RoboWindow(QMainWindow):
         self.sliderx.setFocusPolicy(Qt.StrongFocus)
 
         self.sliderx.setTickPosition(QSlider.TicksBothSides)
-        self.sliderx.setTickInterval(10)
+        self.sliderx.setTickInterval(50)
         self.sliderx.setSingleStep(10)
         self.sliderx.setValue(10)
         self.sliderx.setMinimum(0)
@@ -149,14 +149,14 @@ class RoboWindow(QMainWindow):
         hbox1.addWidget(self.entrada_x,1)
         
         self.entrada_x.textChanged[str].connect(lambda text: self.changeCursor(text, self.sliderx))
-        self.sliderx.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelx))
+        self.sliderx.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelx, self.entrada_x))
         self.sliderx.setMinimumHeight(40)
         
         #Definicao do slidery
         self.slidery = QSlider(Qt.Horizontal, self)
         self.slidery.setFocusPolicy(Qt.StrongFocus)
         self.slidery.setTickPosition(QSlider.TicksBothSides)
-        self.slidery.setTickInterval(10)
+        self.slidery.setTickInterval(25)
         self.slidery.setSingleStep(10)
         self.slidery.setValue(10)
         self.slidery.setMinimum(0)
@@ -178,7 +178,7 @@ class RoboWindow(QMainWindow):
         hbox2.addWidget(self.entrada_y,1)
         
         self.entrada_y.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidery))
-        self.slidery.valueChanged[int].connect(lambda value: self.changeValue(value, self.labely))
+        self.slidery.valueChanged[int].connect(lambda value: self.changeValue(value, self.labely, self.entrada_y))
         self.slidery.setMinimumHeight(40)
         
         
@@ -208,7 +208,7 @@ class RoboWindow(QMainWindow):
         hbox3.addWidget(self.entrada_z,1)
         
         self.entrada_z.textChanged[str].connect(lambda text: self.changeCursor(text, self.sliderz))
-        self.sliderz.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelz))
+        self.sliderz.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelz, self.entrada_z))
         self.sliderz.setMinimumHeight(40)
 
         stepgroup.setLayout(vbox)
@@ -514,7 +514,7 @@ class RoboWindow(QMainWindow):
             elif text[0] != '-':
                 slider.setValue(float(text))
     
-    def changeValue(self, value, labels):
+    def changeValue(self, value, *labels):
         """changeValue toma os valores dos *sliders* a cada alteracao feita e repassa para o texto
         das *labels* respectivas.
         
@@ -522,9 +522,10 @@ class RoboWindow(QMainWindow):
         value -- o valor referente ao *slider* alterado
         lables -- o *label* a ser modificado
         """
-        
-        label = labels
-        label.setText(str(value))    
+        for label in labels:
+            if label is not None:
+                label.setText(str(value))
+            
     
     def rmoveClicked(self):
         """Utiliza o metodo sender dos botoes para a movimentacao relativa de cada uma das coordenadas,

@@ -117,19 +117,23 @@ class WRoboServer(QMainWindow):
         self.process = None
         err = False
         msg = "http://{}:{}".format(xaddr, xport)
-        try:
-            if self.robo.ping() == 123:
-                self.close()
-                self.win = pyqtrobo.RoboWindow(self.robo, msg, self.process)
-                self.win.show()
-                return
-            else:
+        for ntries in range(10):
+            time.sleep(2)
+            try:
+                if self.robo.ping() == 123:
+                    self.close()
+                    self.win = pyqtrobo.RoboWindow(self.robo, msg, self.process)
+                    self.win.show()
+                    return
+                else:
+                    print("Não conseguiu conectar com o robo. Tentando novamente ...")
+                    err = True
+            except:
+                print("Não conseguiu conectar com o robo. Tentando novamente ...")
                 err = True
-        except:
-            err = True
-
+        
         if err:
-            QMessageBox.warning(self, 'Erro', "Não foi possível encontrar o servidor XML-RPC. Tente outro IP ou porta", QMessageBox.Ok)
+            QMessageBox.critical(self, 'Erro', "Não foi possível encontrar o servidor XML-RPC. Tente outro IP ou porta", QMessageBox.Ok)
           
         
                 
@@ -182,9 +186,9 @@ class WRoboServer(QMainWindow):
                     if m.ping() == 123:
                         success = True
                         break
-                    except:
-                        print("Não conseguiu conectar. Tentando novamente ...")
-                        success = False
+                except:
+                    print("Não conseguiu conectar. Tentando novamente ...")
+                    success = False
             if not success:
                 QMessage.critical(self, 'Erro', "Não foi possível iniciar o robô",  MessageBox.Ok)
                 m = None
