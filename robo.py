@@ -245,7 +245,6 @@ class Robo:
         """Posiciona o robo no eixo x nos sensores de homing instalados, 
         os valores 0 e 7 passados para a funcao waitHome sao bits de entrada
         definidos pelo hardware da placa ACR1505"""
-        print(sinal)
         eixo = eixo.upper()
         if sinal == "+":
             bit = self.bit(axis = eixo, side = sinal)
@@ -310,7 +309,7 @@ class Robo:
         if axis == "X":
             self.sendData("IF (" + bit + ") THEN"+ self.PX +"= 0\r")
             self.x0 = 0.0
-            self.set_reference('X')
+            self.set_reference(eixo='X')
             if bit == '0':
                 self.eixo1.lim_i = -5300
                 self.eixo1.lim_s = 0
@@ -320,7 +319,7 @@ class Robo:
         if axis == "Y":
             self.sendData("IF (" + bit + ") THEN"+ self.PY +"= 0\r")
             self.y0 = 0.0
-            self.set_reference('Y')
+            self.set_reference(eixo='Y')
             if bit == '3':
                 self.eixo1.lim_i = -2600
                 self.eixo1.lim_s = 0
@@ -330,7 +329,7 @@ class Robo:
         if axis == "Z":
             self.sendData("IF (" + bit + ") THEN"+ self.PZ +"= 0\r")
             self.z0 = 0.0
-            self.set_reference('Z')
+            self.set_reference(eixo='Z')
             if bit == '5':
                 self.eixo1.lim_i = -500
                 self.eixo1.lim_s = 0
