@@ -596,8 +596,9 @@ class RoboWindow(QMainWindow):
             signalFunction = sinal
             axisFunction = eixo
         self.robo.home(signalFunction, axisFunction)
-        self.posClicked(True)
-        self.absposClicked(True)
+        self.clearpos()
+        #self.posClicked(True)
+        #self.absposClicked(True)
         
     def homeallClicked(self):
         """Envia o robo a posicao de referencia em todas as coordenadas.
@@ -608,9 +609,15 @@ class RoboWindow(QMainWindow):
         self.homeClicked(sinal, 'X')
         self.homeClicked(sinal, 'Y')
         self.homeClicked(sinal, 'Z')
-        self.posClicked(True)
-        self.absposClicked(True)
-        
+        self.clearpos()
+        #self.posClicked(True)
+        #self.absposClicked(True)
+
+    def clearpos(self):
+        self.labelp.setText('')
+        self.labelabsp.setText('')
+        return None
+    
     def posClicked(self, changed = False):
         """Obtem a posicao do robo e a imprime.
         
