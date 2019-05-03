@@ -148,10 +148,8 @@ class WRoboServer(QMainWindow):
             xaddr = self.rpc.ipaddr().strip()
             xport = self.rpc.port()
 
-            msg = "http://{}:{}".format(xaddr, xport)
             pr = Process(target=roboxmlrpc.start_server, args=(self.test, xaddr, xport))
             pr.start()
-            serv = "http://{}:{}".format(xaddr, xport)
             time.sleep(1)
             self.process = pr
             return self.init_client()
