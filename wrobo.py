@@ -125,10 +125,10 @@ class WRoboServer(QMainWindow):
                     self.win.show()
                     return
                 else:
-                    print("Não conseguiu conectar com o robo. Tentando novamente ...")
+                    print("Tentando conectar ...")
                     err = True
             except:
-                print("Não conseguiu conectar com o robo. Tentando novamente ...")
+                print("Tentando conectar ...")
                 err = True
         
         if err:
@@ -152,7 +152,7 @@ class WRoboServer(QMainWindow):
             pr = Process(target=roboxmlrpc.start_server, args=(self.test, xaddr, xport))
             pr.start()
             serv = "http://{}:{}".format(xaddr, xport)
-            time.sleep(8)
+            time.sleep(1)
             self.process = pr
             return self.init_client()
             
