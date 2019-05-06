@@ -290,6 +290,7 @@ class RoboWindow(QMainWindow):
         self.buttony2.clicked.connect(self.homeClicked)
         self.buttonz1 = QPushButton("Home Z-")
         self.buttonz1.clicked.connect(self.homeClicked)
+        self.buttonz1.setEnabled(False)
         self.buttonz2 = QPushButton("Home Z+")
         self.buttonz2.clicked.connect(self.homeClicked)
         self.buttonall1 = QPushButton("Home TODOS-")

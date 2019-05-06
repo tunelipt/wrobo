@@ -232,12 +232,21 @@ class Robo:
         self.z0 = 0.0
             
         
-    def hard_zero(self):
+    def hard_zero(self, axis=None):
         """Zera o parametro de posicao para os tres eixos"""
-        
-        self.con.Write(self.PX + '= 0')
-        self.con.Write(self.PY + '= 0')
-        self.con.Write(self.PZ + '= 0')
+
+        if axis is None:
+            self.con.Write(self.PX + '= 0')
+            self.con.Write(self.PY + '= 0')
+            self.con.Write(self.PZ + '= 0')
+        else:
+            axis = axis.upper()
+            if axis == 'X':
+                self.con.Write(self.PX + '= 0') 
+            elif axis == 'Y':
+                self.con.Write(self.PY + '= 0')
+            elif axis == 'Z':
+                self.con.Write(self.PZ + '= 0')
         
         return self.get_reply()
     
