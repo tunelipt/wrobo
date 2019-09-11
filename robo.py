@@ -51,7 +51,7 @@ class Robo:
         self.y0 = 0.0
         self.z0 = 0.0
         self.connect()
-        self.initHome()
+        #self.initHome()
         
     def initHome(self):
         home = self.sendData("""JOG VEL X15 Y15 Z15\r
@@ -198,7 +198,10 @@ class Robo:
     
     def set_reference(self, xref=0, yref=0, zref=0, eixo=''):
         """Define a posicao de referencia"""
-        
+
+        eixo = eixo.upper()
+        p = self.abs_position()
+
         if self.eixo1.lim_i and self.eixo1.lim_s:
             self.eixo1.lim_i -= self.position['x'] 
             self.eixo1.lim_s -= self.position['x']
@@ -208,10 +211,10 @@ class Robo:
         if self.eixo3.lim_i and self.eixo3.lim_s:
             self.eixo3.lim_i -= self.position['z'] 
             self.eixo3.lim_s -= self.position['z']
-        p = self.abs_position()
+
         if eixo == 'X' or eixo == '':
             self.x0 = p['x'] - xref
-        if eixo == 'y' or eixo == '':
+        if eixo == 'Y' or eixo == '':
             self.y0 = p['y'] - yref
         if eixo == 'Z' or eixo == '':
             self.z0 = p['z'] - zref
