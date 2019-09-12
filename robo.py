@@ -1,7 +1,6 @@
 import acr1505
 import time
 import re
-import roboxmlrpc
 
 class AcrException(Exception):
     def __init__(self, value):
@@ -37,6 +36,7 @@ class Robo:
         
         Inicia o terminal para a passagem dos comandos por acr1505.Terminal()
         Define os parametros de posicao referentes aos eixos de acordo com a linguagem acr"""
+        
         self.con = acr1505.Terminal()
         self.eixo1 = Eixo('X', passommX, PX)
         self.eixo2 = Eixo('Y', passommY, PY)
@@ -51,7 +51,7 @@ class Robo:
         self.y0 = 0.0
         self.z0 = 0.0
         self.connect()
-        #self.initHome()
+        return
         
     def initHome(self):
         home = self.sendData("""JOG VEL X15 Y15 Z15\r
@@ -130,7 +130,7 @@ class Robo:
             yy = y
             if not r:
                 yy += y0
-            bit_y = self.bit("Y", -yy, y0, r)
+            bit_y = self.bit("Y", yy, y0, r)
             bit += "OR " + bit_y
             msg += ' Y' + s + str(-yy)
 		
@@ -177,8 +177,7 @@ class Robo:
         charfound = True
         while charfound:
             try:
-                self.con.Write("PRINT " + self.PX + ", " + self.PY + ", " + self.PZ + "\r")
-                r = self.get_reply()
+                r = self.sendData("PRINT {}, {}, {}\r".format(self.PX, self.PY, self.PZ))
                 pts = [int(x) for x in r.splitlines()[0].split()]
                 charfound = False
             except:
@@ -239,19 +238,19 @@ class Robo:
         """Zera o parametro de posicao para os tres eixos"""
 
         if axis is None:
-            self.con.Write(self.PX + '= 0')
-            self.con.Write(self.PY + '= 0')
-            self.con.Write(self.PZ + '= 0')
+            self.sendData("{} = 0".format(self.PX))
+            self.sendData("{} = 0".format(self.PY))
+            self.sendData("{} = 0".format(self.PZ))
         else:
             axis = axis.upper()
             if axis == 'X':
-                self.con.Write(self.PX + '= 0') 
+                self.sendData("{} = 0".format(self.PX))
             elif axis == 'Y':
-                self.con.Write(self.PY + '= 0')
+                self.sendData("{} = 0".format(self.PY))
             elif axis == 'Z':
-                self.con.Write(self.PZ + '= 0')
+                self.sendData("{} = 0".format(self.PZ))
         
-        return self.get_reply()
+        return None
     
     def home(self, sinal, eixo):
         """Posiciona o robo no eixo x nos sensores de homing instalados, 
@@ -261,14 +260,14 @@ class Robo:
         if sinal == "+":
             bit = self.bit(axis = eixo, side = sinal)
             bit = bit.replace('BIT', '')
-            rep = self.waitHome("JOG REV "+eixo+"\r", bit, eixo)
+            rep = self.waitHome("JOG REV {}\r".format(eixo), bit, eixo)
         elif sinal == "-":
             if eixo == "Z":
                 return None
             elif eixo == "X" or eixo == "Y":
                 bit = self.bit(axis = eixo, side = sinal)
                 bit = bit.replace('BIT', '')
-                rep = self.waitHome("JOG FWD "+eixo+"\r", bit, eixo)
+                rep = self.waitHome("JOG FWD {}\r".format(eixo), bit, eixo)
         return rep
     
     def stop(self):
@@ -294,7 +293,8 @@ class Robo:
         """Desconecta o programa do terminal"""
         if self.isconnected:
             self.con.Disconnect()
-
+        
+        self.isconnected = False
         return None
     
     def sendData(self, message):
@@ -307,21 +307,27 @@ class Robo:
     def waitHome(self, msg, bit, axis):
         """Envia a rotina para verificar se o homing referente ao eixo selecionado
         e ao respectivo BIT foi bem sucedido e define como nova referencia de posicionamento"""
+        if axis == 'X':
+            pp = self.PX
+        elif axis == 'Y':
+            pp = self.PY
+        elif axis == 'Z':
+            pp = self.PZ
+        else:
+            raise AcrException("Eixo {} não existe!".format(axis))
+          
         rep = self.sendData("""PROGRAM\r
-		                IF (NOT BIT"""+ bit + """)\r
-                        """ + msg + """
-		                PRINT "Homing "\r
-                        INH +""" + bit + """
-						JOG OFF X Y Z\r
+		                IF (NOT BIT{})\r
+                            {}
+                            INH +{}
+						    JOG OFF X Y Z\r
                         ENDIF\r
-                        PRINT " Home Found"\r
+                        IF (BIT{}) THEN {} = 0\r
 						ENDP\r
-                        """)
-        self.sendData("RUN\r")
+                        RUN\r
+                        """.format(bit, msg, bit, bit, pp))
         if axis == "X":
-            self.sendData("IF (" + bit + ") THEN"+ self.PX +"= 0\r")
             self.x0 = 0.0
-            self.set_reference(eixo='X')
             if bit == '0':
                 self.eixo1.lim_i = -5300
                 self.eixo1.lim_s = 0
@@ -329,9 +335,7 @@ class Robo:
                 self.eixo1.lim_i = 0
                 self.eixo1.lim_s = 5300
         if axis == "Y":
-            self.sendData("IF (" + bit + ") THEN"+ self.PY +"= 0\r")
             self.y0 = 0.0
-            self.set_reference(eixo='Y')
             if bit == '3':
                 self.eixo1.lim_i = -2600
                 self.eixo1.lim_s = 0
@@ -339,13 +343,17 @@ class Robo:
                 self.eixo1.lim_i = 0
                 self.eixo1.lim_s = 2600
         if axis == "Z":
-            self.sendData("IF (" + bit + ") THEN"+ self.PZ +"= 0\r")
             self.z0 = 0.0
-            self.set_reference(eixo='Z')
             if bit == '5':
                 self.eixo1.lim_i = -500
                 self.eixo1.lim_s = 0
         return rep
+
+    def get_bit(self, bit):
+
+        cmd = "PRINT Bit{}\r".format(bit)
+        return self.sendData(cmd)
+    
         
     def EOT(self, distance, bit):
         """Envia a rotina para verificar se o fim de curso referente ao eixo em movimento
@@ -380,9 +388,12 @@ class Robo:
                 bit = {"X": "BIT7", "Y": "BIT3", "Z": "BIT14"}
         else:
             if x >= x0:
-                bit = {"X": "BIT0", "Y": "BIT3", "Z": "BIT5"}
+                #bit = {"X": "BIT0", "Y": "BIT3", "Z": "BIT5"}
+                bit = {"X": "BIT0", "Y": "BIT13", "Z": "BIT5"}
             else: # x < x0:
-                bit = {"X": "BIT7", "Y": "BIT13", "Z": "BIT14"}
+                #bit = {"X": "BIT7", "Y": "BIT13", "Z": "BIT14"}
+                bit = {"X": "BIT7", "Y": "BIT3", "Z": "BIT14"}
+
         return bit[axis]
     def ping(self):
         return 123
@@ -390,5 +401,5 @@ class Robo:
     
 if __name__ == "__main__":
     print("Creating server ...")
-    
+    import roboxmlrpc
     roboxmlrpc.start_server(ip = 'localhost', port = '9595')
