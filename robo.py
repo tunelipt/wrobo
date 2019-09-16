@@ -283,11 +283,32 @@ class Robo:
         r = self.sendData("CLEAR\r")
         return r
     
-    def waitUntilDone(self):
+    def waitUntilDone(self, dt=0.3, tmax=200):
         """Aguarda a execucao do comando ate a posicao indicada no ultimo comando"""
+        #self.sendData("INH -516\r")
         if not self.isconnected:
             raise AcrException("Python interface not connected")
-        self.sendData("INH -516\r")
+
+        p1 = self.abs_position()
+        t1 = time.perf_counter()
+        while True:
+            time.sleep(dt)
+            p2 = self.abs_position()
+            
+            dx = p2['x'] - p1['x']
+            dy = p2['y'] - p1['y']
+            dz = p2['z'] - p1['z']
+
+            if dx==0 and dy==0 and dz==0:
+                return True
+            p1 = p2
+            t2 = time.perf_counter()
+            if t2-t1 > tmax:
+                return False
+        return False
+            
+            
+        
     
     def disconnect(self):
         """Desconecta o programa do terminal"""
