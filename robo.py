@@ -87,7 +87,7 @@ class Robo:
             reply += tmp
         return reply
         
-    def move(self, x='', y='', z='', a='', r=False, sync=False):
+    def move(self, x='', y='', z='', a=False, r=False, sync=False):
         """Inicializa a movimentacao do robo verificando todos os eixos
         
         O parametro s define o comando incremental na linguagem acr"""
@@ -167,6 +167,23 @@ class Robo:
                 return None
         return self.move(x=x, y=y, z=z, r=True, sync=sync)
     
+    def moveX(self, x, a=False, r=False, sync=False):
+        return self.move(x, '', '', a, r, sync)
+
+    def moveY(self, y, a=False, r=False, sync=False):
+        return self.move('', y, '', a, r, sync)
+
+    def moveZ(self, z, a=False, r=False, sync=False):
+        return self.move('', '', z, a, r, sync)
+
+    def rmoveX(self, x, sync=False):
+        return self.move(x, '', '', False, True, sync)
+    
+    def rmoveY(self, y, sync=False):
+        return self.move('', y, '', False, True, sync)
+    
+    def rmoveZ(self, z, sync=False):
+        return self.move('', '', z, False, True, sync)
         
     def abs_position(self, pulses=False):
         """Indica a posicao atual absoluta do robo de acordo com os parametros de posicao definidos inicialmente"""
@@ -269,6 +286,15 @@ class Robo:
                 bit = bit.replace('BIT', '')
                 rep = self.waitHome("JOG FWD {}\r".format(eixo), bit, eixo)
         return rep
+
+    def homeX(self, sinal='+'):
+        return self.home(sinal, 'X')
+    
+    def homeY(self, sinal='-'):
+        return self.home(sinal, 'Y')
+    
+    def homeZ(self, sinal='+'):
+        return self.home('+', 'Z')
     
     def stop(self):
         """Para toda a movimentacao imediatamente"""
@@ -278,6 +304,8 @@ class Robo:
         time.sleep(1)
         self.clear()
         return r
+    def stopnow(self):
+        return self.stop()
     
     def clear(self):
         r = self.sendData("CLEAR\r")
