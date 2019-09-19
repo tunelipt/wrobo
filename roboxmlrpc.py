@@ -9,9 +9,9 @@ def start_server(test=False, ip = "localhost", port  = "9595"):
     ip -- endereco do servidor
     port -- porta do servidor"""
     if test:
-        import roboteste as robo
+        import wrobolib.roboteste as robo
     else:
-        import robo
+        import wrobolib.robo as robo
     
     r = robo.Robo()
     ip = ip

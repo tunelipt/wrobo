@@ -13,15 +13,18 @@ from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator, QPainter, QColor, QFont, QPen
 import time
 
-import ipportconfig
+from wrobolib import ipportconfig
 
-import pyqtrobo
+from wrobolib import pyqtrobo
 
 import xmlrpc.client
    
 from multiprocessing import Process, freeze_support
+
 import roboxmlrpc
 import argparse
+
+import os.path
 
 class WRoboServer(QMainWindow):
     """Classe implementada a partir da classe QMainWindow e gera a tela inicial,
@@ -156,10 +159,10 @@ class WRoboServer(QMainWindow):
             
         else:
             if self.test:
-                import roboteste as robo
+                import wrobolib.roboteste as robo
                 msg = "TESTE"
             else:
-                import robo
+                import wrobolib.robo as robo
                 msg = ""
             
             m = robo.Robo()
@@ -209,7 +212,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     # Create and display the splash screen
-    splash_pix = QPixmap('ipt.jpg')
+    splash_pix = QPixmap(os.path.join("wrobolib", 'ipt.jpg'))
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
     splash.setMask(splash_pix.mask())
     splash.show()

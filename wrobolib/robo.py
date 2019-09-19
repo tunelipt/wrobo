@@ -1,6 +1,7 @@
-import acr1505
 import time
 import re
+
+from . import acr1505
 
 class AcrException(Exception):
     def __init__(self, value):
