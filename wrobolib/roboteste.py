@@ -53,6 +53,23 @@ class Robo:
         return None
     
         
+    def moveX(self, x, a=False, r=False, sync=False):
+        return self.move(x, '', '', a, r, sync)
+
+    def moveY(self, y, a=False, r=False, sync=False):
+        return self.move('', y, '', a, r, sync)
+
+    def moveZ(self, z, a=False, r=False, sync=False):
+        return self.move('', '', z, a, r, sync)
+
+    def rmoveX(self, x, sync=False):
+        return self.move(x, '', '', False, True, sync)
+    
+    def rmoveY(self, y, sync=False):
+        return self.move('', y, '', False, True, sync)
+    
+    def rmoveZ(self, z, sync=False):
+        return self.move('', '', z, False, True, sync)
     def abs_position(self, pulses=False):
         """
         Indica a posicao atual absoluta do robo de acordo com os
@@ -106,17 +123,28 @@ class Robo:
         print("home(sinal={}, eixo={}".format(sinal, eixo))
         self.waitHome("HOME", 0, eixo)
         return None
+    def homeX(self, sinal='+'):
+        return self.home(sinal, 'X')
+    
+    def homeY(self, sinal='-'):
+        return self.home(sinal, 'Y')
+    
+    def homeZ(self, sinal='+'):
+        return self.home('+', 'Z')
     
     def stop(self):
         """Para toda a movimentacao imediatamente"""
         print("stop()")
         return None
+
+    def stopnow(self):
+        return self.stop()
     
     def clear(self):
         print("clear()")
         return None
     
-    def waitUntilDone(self):
+    def waitUntilDone(self, dt=0.3, tmax=200):
         print("waitUntilDone()")
         return None
     

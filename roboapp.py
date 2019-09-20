@@ -13,7 +13,7 @@ import sys
 from PyQt5.QtWidgets import (QLabel, QGridLayout, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget, QSplashScreen,
                              QGroupBox, QPushButton, QApplication, QSlider, QMainWindow, qApp, QLineEdit, QAction)
 from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator
+from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator, QDoubleValidator
 import time
 
 class RelativeMove(QWidget):
@@ -204,7 +204,7 @@ class StepMove(QWidget):
         if text:
             slider.setValue(float(text))
         
-    def changeValue(self, value, labels):
+    def changeValue(self, value, *labels):
         """changeValue toma os valores dos *sliders* a cada alteracao feita e repassa para o texto
         das *labels* respectivas.
         
@@ -212,9 +212,10 @@ class StepMove(QWidget):
         value -- o valor referente ao *slider* alterado
         lables -- o *label* a ser modificado
         """
-        
-        label = labels
-        label.setText(str(value))
+        for label in labels:
+            if label is not None:
+                label.setText(str(value))
+            
         
 class Reference(QWidget):
     """Classe criada a partir da classe QWidget, 
@@ -237,16 +238,54 @@ class Reference(QWidget):
         """
         
         refgroup = QGroupBox('Referencia')
+
         
         vbox = QVBoxLayout()
+        hbox_x = QHBoxLayout()
+        hbox_y = QHBoxLayout()
+        hbox_z = QHBoxLayout()
+
+        labx = QLabel("Xref")
+        laby = QLabel("Yref")
+        labz = QLabel("Zref")
+
+        self.refxtext = QLineEdit(self)
+        self.refxtext.setText("0")
+        validatorx = QDoubleValidator()
+        self.refxtext.setValidator(validatorx)
+        hbox_x.addWidget(labx)
+        hbox_x.addWidget(self.refxtext)
+
+        self.refytext = QLineEdit(self)
+        self.refytext.setText("0")
+        validatory = QDoubleValidator()
+        self.refytext.setValidator(validatory)
+        hbox_y.addWidget(laby)
+        hbox_y.addWidget(self.refytext)
+
+        self.refztext = QLineEdit(self)
+        self.refztext.setText("0")
+        validatorz = QDoubleValidator()
+        self.refztext.setValidator(validatorz)
+        hbox_z.addWidget(labz)
+        hbox_z.addWidget(self.refztext)
+        
         
         self.buttonref = QPushButton("Ponto atual como referencia")
+        #self.buttonref.clicked.connect(self.refClicked)
         self.buttonabsref = QPushButton("Referencia absoluta")
+        #self.buttonabsref.clicked.connect(self.absrefClicked)
+
+        vbox.addLayout(hbox_x)
+        vbox.addLayout(hbox_y)
+        vbox.addLayout(hbox_z)
+        
         vbox.addWidget(self.buttonref)
         vbox.addWidget(self.buttonabsref)
         refgroup.setLayout(vbox)
         
         return refgroup
+        
 
 
 class Home(QWidget):
@@ -569,16 +608,18 @@ class client_setting(QWidget):
     """client_setting exibe as entradas de texto para a definicao do endereço e porta utilizados
     pela comunicação XMLRPC"""
     
-    def __init__(self):
+    def __init__(self, url="localhost", port=9595):
         """Funcao __init__ para definir o layout geral"""
         
         super().__init__()
         self.title = "Configuracoes do cliente"
         
         self.textboxip = QLineEdit(self)
+        self.textboxip.setText(url)
         self.labelip = QLabel('Endereço do Server:')
         
         self.textboxport = QLineEdit(self)
+        self.textboxport.setText(str(port))
         self.labelport = QLabel('Porta:')
         
         self.button_end = QPushButton('Sair')
@@ -708,7 +749,7 @@ class Welcome(QMainWindow):
         self.setWindowTitle("Configurações Iniciais")
         self.setGeometry(50, 50, 350, 400)
         
-        self.widget = client_setting()
+        self.widget = client_setting("localhost", 9595)
         self.setCentralWidget(self.widget)
         
         self.widget.button_conf.clicked.connect(self.configurar)
@@ -740,13 +781,6 @@ class Welcome(QMainWindow):
         """initUI fecha a janela atual e abre a interface reponsável pelos comandos ao robo,
         definindo a nova comunicação com o servidor"""
         
-        global pr
-        if pr:
-            pr.terminate()
-            time.sleep(1)
-
-        pr = Process(target=roboxmlrpc.start_server, args=(ip, port))
-        pr.start()
 
         self.robo = xmlrpc.client.ServerProxy("http://"+str(ip)+":"+str(port))
         self.new_wind()
@@ -1015,13 +1049,8 @@ class MyTableWidget(QWidget):
         self.absposClicked(True)
         
 import xmlrpc.client
-from xmlrpc.server import SimpleXMLRPCRequestHandler
     
-from multiprocessing import Process
-import roboxmlrpc
 
-class RequestHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/RPC2',)
 
 if __name__ == '__main__':  
     #robo = roboteste.Robo()
