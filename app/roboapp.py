@@ -96,11 +96,11 @@ class StepMove(QWidget):
         self.sliderx.setFocusPolicy(Qt.StrongFocus)
 
         self.sliderx.setTickPosition(QSlider.TicksBothSides)
-        self.sliderx.setTickInterval(10)
+        self.sliderx.setTickInterval(50)
         self.sliderx.setSingleStep(10)
         self.sliderx.setValue(10)
         self.sliderx.setMinimum(0)
-        self.sliderx.setMaximum(100)
+        self.sliderx.setMaximum(500)
 
         self.labelx = QLabel('10')
         self.labelx.setMinimumHeight(40)
@@ -121,18 +121,19 @@ class StepMove(QWidget):
         hbox1.addWidget(self.entrada_x,1)
         
         self.entrada_x.textChanged[str].connect(lambda text: self.changeCursor(text, self.sliderx))
-        self.sliderx.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelx))
+        self.sliderx.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelx,
+                                                                              self.entrada_x))
         self.sliderx.setMinimumHeight(40)
         
         #Definicao do slidery
         self.slidery = QSlider(Qt.Horizontal, self)
         self.slidery.setFocusPolicy(Qt.StrongFocus)
         self.slidery.setTickPosition(QSlider.TicksBothSides)
-        self.slidery.setTickInterval(10)
+        self.slidery.setTickInterval(25)
         self.slidery.setSingleStep(10)
         self.slidery.setValue(10)
         self.slidery.setMinimum(0)
-        self.slidery.setMaximum(100)
+        self.slidery.setMaximum(500)
 
         self.labely = QLabel('10')
         self.labely.setMinimumHeight(30)
@@ -150,7 +151,8 @@ class StepMove(QWidget):
         hbox2.addWidget(self.entrada_y,1)
         
         self.entrada_y.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidery))
-        self.slidery.valueChanged[int].connect(lambda value: self.changeValue(value, self.labely))
+        self.slidery.valueChanged[int].connect(lambda value: self.changeValue(value, self.labely,
+                                                                              self.entrada_y))
         self.slidery.setMinimumHeight(40)
         
         
@@ -162,7 +164,7 @@ class StepMove(QWidget):
         self.sliderz.setSingleStep(10)
         self.sliderz.setValue(10)
         self.sliderz.setMinimum(0)
-        self.sliderz.setMaximum(100)
+        self.sliderz.setMaximum(200)
         
         self.labelz = QLabel('10')
         self.labelz.setMinimumHeight(40)
@@ -180,7 +182,8 @@ class StepMove(QWidget):
         hbox3.addWidget(self.entrada_z,1)
         
         self.entrada_z.textChanged[str].connect(lambda text: self.changeCursor(text, self.sliderz))
-        self.sliderz.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelz))
+        self.sliderz.valueChanged[int].connect(lambda value: self.changeValue(value, self.labelz,
+                                                                              self.entrada_z))
         self.sliderz.setMinimumHeight(40)
 
         stepgroup.setLayout(vbox)
