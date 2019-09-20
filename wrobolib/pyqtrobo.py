@@ -278,7 +278,6 @@ class RoboWindow(QMainWindow):
         hbox1 = QHBoxLayout()
         hbox2 = QHBoxLayout()
         hbox3 = QHBoxLayout()
-        hbox4 = QHBoxLayout()
         
         self.buttonx1 = QPushButton("Home X-")
         self.buttonx1.clicked.connect(self.homeClicked)
@@ -293,25 +292,16 @@ class RoboWindow(QMainWindow):
         self.buttonz1.setEnabled(False)
         self.buttonz2 = QPushButton("Home Z+")
         self.buttonz2.clicked.connect(self.homeClicked)
-        self.buttonall1 = QPushButton("Home TODOS-")
-        self.buttonall1.clicked.connect(self.homeallClicked)
-        self.buttonall1.setMinimumHeight(50)
-        self.buttonall2 = QPushButton("Home TODOS+")
-        self.buttonall2.clicked.connect(self.homeallClicked)
-        self.buttonall2.setMinimumHeight(50)
         
         vbox.addLayout(hbox1)
         vbox.addLayout(hbox2)
         vbox.addLayout(hbox3)
-        vbox.addLayout(hbox4)
         hbox1.addWidget(self.buttonx1)
         hbox1.addWidget(self.buttonx2)
         hbox2.addWidget(self.buttony1)
         hbox2.addWidget(self.buttony2)
         hbox3.addWidget(self.buttonz1)
         hbox3.addWidget(self.buttonz2)
-        hbox4.addWidget(self.buttonall1)
-        hbox4.addWidget(self.buttonall2)
         homegroup.setLayout(vbox)
         
         return homegroup
@@ -601,18 +591,6 @@ class RoboWindow(QMainWindow):
         #self.posClicked(True)
         #self.absposClicked(True)
         
-    def homeallClicked(self):
-        """Envia o robo a posicao de referencia em todas as coordenadas.
-        
-        Chamando o comando por meio do arquivo passado por *self.robo*"""
-        clickedButton = self.sender()
-        sinal = clickedButton.text()[-1]
-        self.homeClicked(sinal, 'X')
-        self.homeClicked(sinal, 'Y')
-        self.homeClicked(sinal, 'Z')
-        self.clearpos()
-        #self.posClicked(True)
-        #self.absposClicked(True)
 
     def clearpos(self):
         self.labelp.setText('')
@@ -704,34 +682,5 @@ class RoboWindow(QMainWindow):
             self.process.terminate()
         qApp.quit()
         
-import xmlrpc.client
-from xmlrpc.server import SimpleXMLRPCRequestHandler
     
-from multiprocessing import Process
-import roboxmlrpc
 
-class RequestHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/RPC2',)
-
-if __name__ == '__main__':  
-    #robo = roboteste.Robo()
-    app = QApplication(sys.argv)
-    global pr
-    pr = ''
-    
-    # Create and display the splash screen
-    splash_pix = QPixmap('ipt.jpg')
-    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
-    splash.setMask(splash_pix.mask())
-    splash.show()
-    app.processEvents()
-
-    # Simulate something that takes time
-    time.sleep(2)
-
-    win = Welcome()
-    win.show()
-    splash.finish(win)
-    sys.exit(app.exec_())
-    
-    pr.terminate()

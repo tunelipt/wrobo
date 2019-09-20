@@ -13,8 +13,9 @@ import sys
 from PyQt5.QtWidgets import (QLabel, QGridLayout, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget, QSplashScreen,
                              QGroupBox, QPushButton, QApplication, QSlider, QMainWindow, qApp, QLineEdit, QAction)
 from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator, QDoubleValidator
+from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator, QDoubleValidator, QIntValidator
 import time
+import os.path
 
 class RelativeMove(QWidget):
     """Classe criada a partir da classe QWidget, 
@@ -236,7 +237,6 @@ class Reference(QWidget):
         """interface gera os botoes para a definicao da referencia do robo e define como serao 
         dispostos de acordo com *Box Layouts* dentro do *group box* criado.
         """
-        
         refgroup = QGroupBox('Referencia')
 
         
@@ -272,9 +272,7 @@ class Reference(QWidget):
         
         
         self.buttonref = QPushButton("Ponto atual como referencia")
-        #self.buttonref.clicked.connect(self.refClicked)
         self.buttonabsref = QPushButton("Referencia absoluta")
-        #self.buttonabsref.clicked.connect(self.absrefClicked)
 
         vbox.addLayout(hbox_x)
         vbox.addLayout(hbox_y)
@@ -319,11 +317,8 @@ class Home(QWidget):
         self.buttony1 = QPushButton("Home Y-")
         self.buttony2 = QPushButton("Home Y+")
         self.buttonz1 = QPushButton("Home Z-")
+        self.buttonz1.setEnabled(False)
         self.buttonz2 = QPushButton("Home Z+")
-        self.buttonall1 = QPushButton("Home TODOS-")
-        self.buttonall1.setMinimumHeight(50)
-        self.buttonall2 = QPushButton("Home TODOS+")
-        self.buttonall2.setMinimumHeight(50)
         
         vbox.addLayout(hbox1)
         vbox.addLayout(hbox2)
@@ -335,8 +330,6 @@ class Home(QWidget):
         hbox2.addWidget(self.buttony2)
         hbox3.addWidget(self.buttonz1)
         hbox3.addWidget(self.buttonz2)
-        hbox4.addWidget(self.buttonall1)
-        hbox4.addWidget(self.buttonall2)
         homegroup.setLayout(vbox)
         
         return homegroup
@@ -374,14 +367,14 @@ class Move(QWidget):
         self.button = QPushButton("Mover")
         self.button.setMinimumHeight(50)
         vbox.addWidget(self.button)
-
+        
         #Definicao do sliderx
         self.slidermx = QSlider(Qt.Horizontal, self)
         self.slidermx.setFocusPolicy(Qt.StrongFocus)
         self.slidermx.setSingleStep(10)
         self.slidermx.setValue(0)
-        self.slidermx.setMinimum(-1000)
-        self.slidermx.setMaximum(1000)
+        self.slidermx.setMinimum(-5000)
+        self.slidermx.setMaximum(5000)
         
         self.move_x = QLineEdit(self)
         self.move_x.setText('0')
@@ -392,17 +385,18 @@ class Move(QWidget):
         
         self.posx = QLabel('0')
         self.posx.setAlignment(Qt.AlignCenter)
-        labelx = QLabel("X")
-        labelx.setMinimumHeight(40)
+        self.labelxbutton = QPushButton("X")
+        
+        #labelx.setMinimumHeight(40)
 
         vbox.addWidget(self.posx)
         vbox.addLayout(hbox1)
-        hbox1.addWidget(labelx,0.5)
-        hbox1.addWidget(self.slidermx,6)
+        hbox1.addWidget(self.labelxbutton,0.5)
+        hbox1.addWidget(self.slidermx,7)
         hbox1.addWidget(self.move_x,1)
         
         self.move_x.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidermx))
-        self.slidermx.valueChanged[int].connect(lambda value: self.changeValue(value, self.posx))
+        self.slidermx.valueChanged[int].connect(lambda value: self.changeValue(value, self.posx, self.move_x))
         self.slidermx.setMinimumHeight(40)
         
         #Definicao do slidery
@@ -410,8 +404,8 @@ class Move(QWidget):
         self.slidermy.setFocusPolicy(Qt.StrongFocus)
         self.slidermy.setSingleStep(10)
         self.slidermy.setValue(0)
-        self.slidermy.setMinimum(-2500)
-        self.slidermy.setMaximum(2500)
+        self.slidermy.setMinimum(-2600)
+        self.slidermy.setMaximum(2600)
         
         self.move_y = QLineEdit(self)
         self.move_y.setText('0')
@@ -421,17 +415,17 @@ class Move(QWidget):
         
         self.posy = QLabel('0')
         self.posy.setAlignment(Qt.AlignCenter)
-        labely = QLabel("Y")
-        labely.setMinimumHeight(40)
+        self.labelybutton = QPushButton("Y")
+        #labely.setMinimumHeight(40)
 
         vbox.addWidget(self.posy)
         vbox.addLayout(hbox2)
-        hbox2.addWidget(labely,0.5)
-        hbox2.addWidget(self.slidermy,6)
+        hbox2.addWidget(self.labelybutton,0.5)
+        hbox2.addWidget(self.slidermy,7)
         hbox2.addWidget(self.move_y,1)
         
         self.move_y.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidermy))
-        self.slidermy.valueChanged[int].connect(lambda value: self.changeValue(value, self.posy))
+        self.slidermy.valueChanged[int].connect(lambda value: self.changeValue(value, self.posy, self.move_y))
         self.slidermy.setMinimumHeight(40)
 
         
@@ -440,8 +434,8 @@ class Move(QWidget):
         self.slidermz.setFocusPolicy(Qt.StrongFocus)
         self.slidermz.setSingleStep(10)
         self.slidermz.setValue(0)
-        self.slidermz.setMinimum(-250)
-        self.slidermz.setMaximum(250)
+        self.slidermz.setMinimum(-600)
+        self.slidermz.setMaximum(600)
 
         self.move_z = QLineEdit(self)
         self.move_z.setText('0')
@@ -451,20 +445,21 @@ class Move(QWidget):
         
         self.posz = QLabel('0')
         self.posz.setAlignment(Qt.AlignCenter)
-        labelz = QLabel("Z")
-        labelz.setMinimumHeight(40)
+        self.labelzbutton = QPushButton("Z")
+        #labelz.setMinimumHeight(40)
         
         vbox.addWidget(self.posz)
         vbox.addLayout(hbox3)
-        hbox3.addWidget(labelz,0.5)
-        hbox3.addWidget(self.slidermz,6)
+        hbox3.addWidget(self.labelzbutton,0.5)
+        hbox3.addWidget(self.slidermz,7)
         hbox3.addWidget(self.move_z,1)
         
         self.move_z.textChanged[str].connect(lambda text: self.changeCursor(text, self.slidermz))
-        self.slidermz.valueChanged[int].connect(lambda value: self.changeValue(value, self.posz))
+        self.slidermz.valueChanged[int].connect(lambda value: self.changeValue(value, self.posz, self.move_z))
         self.slidermz.setMinimumHeight(40)
         
         movegroup.setLayout(vbox)
+        
         
         return movegroup
     
@@ -484,7 +479,7 @@ class Move(QWidget):
             elif text[0] != '-':
                 slider.setValue(float(text))
     
-    def changeValue(self, value, labels):
+    def changeValue(self, value, *labels):
         """changeValue toma os valores dos *sliders* a cada alteracao feita e repassa para o texto
         das *labels* respectivas.
         
@@ -492,9 +487,9 @@ class Move(QWidget):
         value -- o valor referente ao *slider* alterado
         lables -- o *label* a ser modificado
         """
-        
-        label = labels
-        label.setText(str(value))
+        for label in labels:
+            if label is not None:
+                label.setText(str(value))
     
     
 class Position(QWidget):
@@ -643,6 +638,64 @@ class client_setting(QWidget):
         column.addWidget(self.button_end)
        
         self.setLayout(column)
+
+
+class IPPort(QWidget):
+    """Tab0 e responsavel pela configuração da conexão XML-RPC"""
+    
+    def __init__(self, url="localhost", port=9595):
+        """Funcao __init__ para definir o layout geral"""
+        
+
+        super().__init__()
+
+        column = QVBoxLayout()
+        
+        ipgroup = QGroupBox("XML-RPC")
+
+        column2 = QVBoxLayout()
+        self.urltext = QLineEdit(self)
+        self.urltext.setText(url)
+        urllab = QLabel("URL:")
+        self.porttext = QLineEdit(self)
+        self.porttext.setValidator(QIntValidator(1000, 65535, self.porttext))
+        self.porttext.setText(str(port))
+        portlab = QLabel("Port: ")
+
+        self.configbutton = QPushButton("&Configurar")
+        self.sairbutton = QPushButton("&Sair")
+        
+        r1 = QHBoxLayout()
+        r2 = QHBoxLayout()
+        r3 = QHBoxLayout()
+
+        r1.addWidget(urllab)
+        r1.addWidget(self.urltext)
+
+        r2.addWidget(portlab)
+        r2.addWidget(self.porttext)
+
+        r3.addWidget(self.configbutton)
+        r3.addWidget(self.sairbutton)
+        
+        
+        column2.addLayout(r1)
+        column2.addLayout(r2)
+        column2.addLayout(r3)
+        column2.addStretch(1)
+        ipgroup.setLayout(column2)
+
+        column.addWidget(ipgroup)
+
+        self.setLayout(column)
+        
+
+    def urlport(self):
+        url = self.urltext.text()
+        port = int(self.porttext.text())
+        return url, port
+    
+    
     
 class Tab1(QWidget):
     """Tab1 e responsavel pela juncao e disposicao das *Group Boxes* necessarias na primeira
@@ -666,6 +719,7 @@ class Tab1(QWidget):
         
         
         self.setLayout(column1)
+        
 
 class Tab2(QWidget):
     """Tab2 e responsavel pela juncao e disposicao das *Group Boxes* necessarias na segunda
@@ -735,136 +789,83 @@ class Tab4(QWidget):
         self.setLayout(column4)
 
 
-class Welcome(QMainWindow):
-    """Classe implementada a partir da classe QMainWindow e gera a tela inicial,
-    responsavel pela configuracao inicial dos argumentos utilizados pelo XMLRPC"""
-    
-    def __init__(self, parent=None):
-        """Funcao __init__ para definir o layout geral
         
-        Keyword argumets:
-        robo -- arquivo do qual chamam-se os comandos enviados ao robo
-        """
-        super().__init__(parent)
-        self.setWindowTitle("Configurações Iniciais")
-        self.setGeometry(50, 50, 350, 400)
-        
-        self.widget = client_setting("localhost", 9595)
-        self.setCentralWidget(self.widget)
-        
-        self.widget.button_conf.clicked.connect(self.configurar)
-        self.widget.button_end.clicked.connect(self.sair)
-        
-        self.setWindowIcon(QIcon('ipt.jpg'))
-        
-        self.show()
-
-    def configurar(self):
-        """Essa funcao e chamada pelo botao *Configurar* e toma os valores das entradas de texto
-        como os novos valores de endereco e porta"""
-        if self.widget.textboxip.text():
-            self.ip = self.widget.textboxip.text()
-        else:
-            self.ip = "10.5.37.38"
-            
-        if self.widget.textboxport.text():
-            self.port = self.widget.textboxport.text()
-        else:
-            self.port = 9595
-            
-        self.initUI(self.ip, self.port)
-        self.widget.textboxip.setText('')
-        self.widget.textboxport.setText('')
-        
-
-    def initUI(self, ip, port):
-        """initUI fecha a janela atual e abre a interface reponsável pelos comandos ao robo,
-        definindo a nova comunicação com o servidor"""
-        
-
-        self.robo = xmlrpc.client.ServerProxy("http://"+str(ip)+":"+str(port))
-        self.new_wind()
-        
-    def new_wind(self):
-        """Fecha a janela de boas vindas e inicia a janela principal"""
-        self.close()
-        self.win = MainWindow(self.robo)
-        self.win.show()
-    
-    def sair(self):
-        """Finaliza o processo de comunicação e encerra o aplicativo"""
-        global pr
-        if pr:
-            pr.terminate()
-        qApp.quit()
-        
-class MainWindow(QMainWindow):
+class AppRobo(QMainWindow):
     """Classe implementada sobre a partir da classe QMainWindow e gera a tela de comandos,
     responsavel pela disposicao final das guias"""
     
-    def __init__(self, robo, parent=None):
+    def __init__(self, url="localhost", port=9595, parent=None):
         """Funcao __init__ para definir o layout geral
         
         Keyword argumets:
         robo -- arquivo do qual chamam-se os comandos enviados ao robo
         """
         
-        self.robo = robo
-        
-        super(MainWindow, self).__init__(parent)
+        super(AppRobo, self).__init__(parent)
         self.setWindowTitle("Movimentador do Tunel")
         self.setGeometry(50, 50, 500, 550)
-        self.tab = Welcome
         
-        self.table_widget = MyTableWidget(self.robo, self)
+        self.table_widget = MyTableWidget(url, port)
         self.setCentralWidget(self.table_widget)
         
-        exitAct = QAction(QIcon('exit.png'), '&Sair', self)
-        exitAct.setShortcut('Ctrl+Q')
-        exitAct.setStatusTip('Sair do Programa')
-        exitAct.triggered.connect(self.tab.sair)
+        #exitAct = QAction(QIcon('exit.png'), '&Sair', self)
+        #exitAct.setShortcut('Ctrl+Q')
+        #exitAct.setStatusTip('Sair do Programa')
+        #exitAct.triggered.connect(self.sair)
         
-        configAct = QAction(QIcon('configura.jpg'), '&Configurar', self)
-        configAct.setStatusTip('Configurar endereço')
-        configAct.triggered.connect(self.new_wind)
+        #configAct = QAction(QIcon('configura.jpg'), '&Configurar', self)
+        #configAct.setStatusTip('Configurar endereço')
+        #configAct.triggered.connect(self.configurar)
        
-        self.toolbar = self.addToolBar('&Configurações')
-        self.toolbar.addAction(configAct)
-        self.toolbar.addAction(exitAct)
+        #self.toolbar = self.addToolBar('&Configurações')
+        #self.toolbar.addAction(configAct)
+        #self.toolbar.addAction(exitAct)
         
         self.setWindowIcon(QIcon('ipt.jpg'))
         self.show()
         
-    def new_wind(self):
-        """Fecha a janela de boas vindas e inicia a janela principal"""
-        self.close()
-        self.win = Welcome()
-        self.win.show()
-
+    def sair(self):
+        qApp.quit()
+        return None
+    def configurar(self):
+        return None
+    
 class MyTableWidget(QWidget):        
     """Classe que cria o *layout* de guias e preenche com as classes anteriores,
     definindo tambem a funcionalidade de cada um dos botoes"""
     
-    def __init__(self, robo, parent):
+    def __init__(self, url="localhost", port=9595, parent=None):
         """Funcao __init__ para definir o layout geral
         
         Keyword argumets:
         robo -- arquivo do qual chamam-se os comandos enviados ao robo
         """
+        self.url = url
+        self.port = port
+        self.robo = None
         
-        self.robo = robo
         super(QWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
                 
         self.tabs = QTabWidget()
+        
+        self.config = IPPort(url, port)
+        
         self.tab1 = Tab1()
         self.tab2 = Tab2()
         self.tab3 = Tab3()
         self.tab4 = Tab4()
+
+        self.tab1.setEnabled(False)
+        self.tab2.setEnabled(False)
+        self.tab3.setEnabled(False)
+        self.tab4.setEnabled(False)
+
         
         self.tabs.resize(350,300)  
  
         # Add tabs
+        self.tabs.addTab(self.config, "Config.")
         self.tabs.addTab(self.tab1,"Relativo")
         self.tabs.addTab(self.tab2,"Home")
         self.tabs.addTab(self.tab3,"Movimento")
@@ -878,16 +879,17 @@ class MyTableWidget(QWidget):
         self.tab4.ref.buttonref.clicked.connect(self.refClicked)
         self.tab4.ref.buttonabsref.clicked.connect(self.absrefClicked)
         
-        self.tab2.home.buttonx1.clicked.connect(self.homexClicked)
-        self.tab2.home.buttonx2.clicked.connect(self.homexClicked)
-        self.tab2.home.buttony1.clicked.connect(self.homeyClicked)
-        self.tab2.home.buttony2.clicked.connect(self.homeyClicked)
-        self.tab2.home.buttonz1.clicked.connect(self.homezClicked)
-        self.tab2.home.buttonz2.clicked.connect(self.homezClicked)
-        self.tab2.home.buttonall1.clicked.connect(self.homeallClicked)
-        self.tab2.home.buttonall2.clicked.connect(self.homeallClicked)
+        self.tab2.home.buttonx1.clicked.connect(self.homeClicked)
+        self.tab2.home.buttonx2.clicked.connect(self.homeClicked)
+        self.tab2.home.buttony1.clicked.connect(self.homeClicked)
+        self.tab2.home.buttony2.clicked.connect(self.homeClicked)
+        self.tab2.home.buttonz1.clicked.connect(self.homeClicked)
+        self.tab2.home.buttonz2.clicked.connect(self.homeClicked)
         self.tab3.move.button.clicked.connect(self.moveClicked)
-        
+        self.tab3.move.labelxbutton.clicked.connect(self.moveXClicked)
+        self.tab3.move.labelybutton.clicked.connect(self.moveYClicked)
+        self.tab3.move.labelzbutton.clicked.connect(self.moveZClicked)
+
         select = [self.tab1, self.tab2, self.tab3, self.tab4]
         for tab in select:
             tab.position.buttonpos.clicked.connect(self.posClicked)
@@ -895,7 +897,33 @@ class MyTableWidget(QWidget):
             tab.stop.buttons.clicked.connect(self.stopClicked)
             if tab != self.tab1:
                 tab.clear.buttonc.clicked.connect(self.clearClicked)
+
+        self.config.configbutton.clicked.connect(self.configClick)
+        self.config.sairbutton.clicked.connect(self.sairClick)
         
+        
+    def configClick(self):
+        url, port = self.config.urlport()
+        serv = "http://{}:{}".format(url,port)
+        print(serv)
+        self.robo = xmlrpc.client.ServerProxy(serv)
+        time.sleep(0.2)
+        if self.robo.ping() == 123:
+            self.tab1.setEnabled(True)
+            self.tab2.setEnabled(True)
+            self.tab3.setEnabled(True)
+            self.tab4.setEnabled(True)
+            self.tabs.setCurrentIndex(1)
+        else:
+            QMessageBox.critical(self, 'Erro', "Não foi possível conectar com o servidor XML-RPC. Tente outro IP ou porta", QMessageBox.Ok)
+        
+        return None
+
+    
+    def sairClick(self):
+        qApp.quit()
+        return None
+    
     def rmoveClicked(self):
         """Utiliza o metodo sender dos botoes para a movimentacao relativa de cada uma das coordenadas,
         levando os valores do respectivo passo em consideração.
@@ -926,55 +954,53 @@ class MyTableWidget(QWidget):
         """Envia o robo a posição indicada pelos *sliders* da classe Move.
         
         Chamando o comando por meio do arquivo passado por *self.robo*"""
-        
-        self.robo.moveX(float(self.tab3.move.posx.text()))
-        self.robo.moveY(float(self.tab3.move.posy.text()))
-        self.robo.moveZ(float(self.tab3.move.posz.text()))
+        self.robo.move(float(self.tab3.move.slidermx.value()),
+                       float(self.tab3.move.slidermy.value()),
+                       float(self.tab3.move.slidermz.value()))
         self.posClicked(True)
         self.absposClicked(True)
-        
-    def homexClicked(self):
+    def moveXClicked(self):
+        x = float(self.tab3.move.slidermx.value())
+        self.robo.move(x)
+        self.posClicked(True)
+        self.absposClicked(True)
+        return None
+
+    def moveYClicked(self):
+        y = float(self.tab3.move.slidermy.value())
+        self.robo.move('', y)
+        self.posClicked(True)
+        self.absposClicked(True)
+        return None
+
+    def moveZClicked(self):
+        z = float(self.tab3.move.slidermz.value())
+        self.robo.move('', '', z)
+        self.posClicked(True)
+        self.absposClicked(True)
+        return None
+
+    def homeClicked(self, sinal = None, eixo = None):
         """Envia o robo a posição de referencia em X.
         
         Chamando o comando por meio do arquivo passado por *self.robo*"""
-        clickedButton = self.sender()
-        signalFunction = clickedButton.text()
-        self.robo.homeX(signalFunction[-1])
-        self.posClicked(True)
-        self.absposClicked(True)
+        if not sinal and not eixo:    
+            clickedButton = self.sender()
+            signalFunction = clickedButton.text()[-1]
+            axisFunction = clickedButton.text()[-2]
+        else:
+            signalFunction = sinal
+            axisFunction = eixo
+        self.robo.home(signalFunction, axisFunction)
+        self.clearpos()
+        #self.posClicked(True)
+        #self.absposClicked(True)
+
+    def clearpos(self):
+        self.tab3.position.labelp.setText('')
+        self.tab3.position.labelabsp.setText('')
+        return None
         
-    def homeyClicked(self):
-        """Envia o robo a posição de referencia em Y.
-        
-        Chamando o comando por meio do arquivo passado por *self.robo*"""
-        
-        clickedButton = self.sender()
-        signalFunction = clickedButton.text()
-        self.robo.homeY(signalFunction[-1])
-        self.posClicked(True)
-        self.absposClicked(True)
-        
-    def homezClicked(self):
-        """Envia o robo a posicao de referencia em Z.
-        
-        Chamando o comando por meio do arquivo passado por *self.robo*"""
-        
-        clickedButton = self.sender()
-        signalFunction = clickedButton.text()
-        self.robo.homeZ(signalFunction[-1])
-        self.posClicked(True)
-        self.absposClicked(True)
-        
-    def homeallClicked(self):
-        """Envia o robo a posicao de referencia em todas as coordenadas.
-        
-        Chamando o comando por meio do arquivo passado por *self.robo*"""
-        
-        self.homexClicked()
-        self.homeyClicked()
-        self.homezClicked()
-        self.posClicked(True)
-        self.absposClicked(True)
         
     def posClicked(self, changed = False):
         """Obtem a posicao do robo e a imprime.
@@ -1016,10 +1042,20 @@ class MyTableWidget(QWidget):
         """Define a posicao atual como referencia para o robo.
         
         Chamando o comando por meio do arquivo passado por *self.robo*"""
+        xref = float(self.tab4.ref.refxtext.text())
+        yref = float(self.tab4.ref.refytext.text())
+        zref = float(self.tab4.ref.refztext.text())
         
         self.posClicked(True)
         self.absposClicked(True)
-        self.robo.set_reference()
+
+        self.robo.set_reference(xref, yref, zref)
+
+        self.tab4.ref.refxtext.setText("0")
+        self.tab4.ref.refytext.setText("0")
+        self.tab4.ref.refztext.setText("0")
+        
+        
         
     def absrefClicked(self):
         """Define a posicao atual como referencia absoluta para o robo.
@@ -1055,24 +1091,24 @@ import xmlrpc.client
 if __name__ == '__main__':  
     #robo = roboteste.Robo()
     app = QApplication(sys.argv)
-    global pr
-    pr = ''
-    global inicial
-    inicial = True
+
+    win = AppRobo("localhost", 9595)
+
     # Create and display the splash screen
-    splash_pix = QPixmap('ipt.jpg')
+    splash_pix = QPixmap(os.path.join('wrobolib', 'ipt.jpg'))
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    #splash.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+    
     splash.setMask(splash_pix.mask())
     splash.show()
-    app.processEvents()
 
     # Simulate something that takes time
-    time.sleep(1)
+    for i in range(15):
+        app.processEvents()
+        time.sleep(0.1)
     
-    win = Welcome()
     win.show()
     splash.finish(win)
 
     sys.exit(app.exec_())
     
-    pr.terminate()

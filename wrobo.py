@@ -211,6 +211,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     
+    win = WRoboServer(args.test, args.ip, args.port, not args.serverless, args.client)
     # Create and display the splash screen
     splash_pix = QPixmap(os.path.join("wrobolib", 'ipt.jpg'))
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
@@ -219,9 +220,11 @@ if __name__ == '__main__':
     app.processEvents()
 
     # Simulate something that takes time
-    time.sleep(1)
+    for i in range(15):
+        time.sleep(0.1)
+        app.processEvents()
+
     
-    win = WRoboServer(args.test, args.ip, args.port, not args.serverless, args.client)
     win.show()
     splash.finish(win)
 

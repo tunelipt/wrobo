@@ -14,7 +14,7 @@ from PyQt5.QtGui import QPixmap
 import argparse
 import time
 import wrobo
-
+import os.path
 
 if __name__ == '__main__':  
     
@@ -26,17 +26,20 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     
+    win = wrobo.WRoboServer(False, args.ip, args.port, False, True)
+
     # Create and display the splash screen
-    splash_pix = QPixmap('ipt.jpg')
+    splash_pix = QPixmap(os.path.join('wrobolib', 'ipt.jpg'))
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
     splash.setMask(splash_pix.mask())
     splash.show()
-    app.processEvents()
 
     # Simulate something that takes time
-    time.sleep(1)
+    for i in range(10):
+        app.processEvents()
+        time.sleep(0.1)
+
     
-    win = wrobo.WRoboServer(False, args.ip, args.port, False, True)
     win.show()
     splash.finish(win)
 
