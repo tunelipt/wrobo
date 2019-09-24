@@ -16,6 +16,7 @@ from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QPixmap, QIcon, QRegExpValidator, QDoubleValidator, QIntValidator
 import time
 import os.path
+import xmlrpc.client
 
 class RelativeMove(QWidget):
     """Classe criada a partir da classe QWidget, 
@@ -677,10 +678,13 @@ class IPPort(QWidget):
 
         r3.addWidget(self.configbutton)
         r3.addWidget(self.sairbutton)
+
+        self.errlab = QLabel("")
         
         
         column2.addLayout(r1)
         column2.addLayout(r2)
+        column2.addWidget(self.errlab)
         column2.addLayout(r3)
         column2.addStretch(1)
         ipgroup.setLayout(column2)
@@ -905,17 +909,20 @@ class MyTableWidget(QWidget):
     def configClick(self):
         url, port = self.config.urlport()
         serv = "http://{}:{}".format(url,port)
-        print(serv)
         self.robo = xmlrpc.client.ServerProxy(serv)
-        time.sleep(0.2)
-        if self.robo.ping() == 123:
-            self.tab1.setEnabled(True)
-            self.tab2.setEnabled(True)
-            self.tab3.setEnabled(True)
-            self.tab4.setEnabled(True)
-            self.tabs.setCurrentIndex(1)
-        else:
-            QMessageBox.critical(self, 'Erro', "Não foi possível conectar com o servidor XML-RPC. Tente outro IP ou porta", QMessageBox.Ok)
+        time.sleep(1)
+        try:
+            if self.robo.ping() == 123:
+                self.tab1.setEnabled(True)
+                self.tab2.setEnabled(True)
+                self.tab3.setEnabled(True)
+                self.tab4.setEnabled(True)
+                self.tabs.setCurrentIndex(1)
+                self.config.errlab.setText('')
+            else:
+                self.config.errlab.setText("Não foi possível conectar com o servidor XML-RPC: Não pingou")
+        except:
+            self.config.errlab.setText("Não foi possível conectar com o servidor XML-RPC: exception")
         
         return None
 
@@ -1084,7 +1091,6 @@ class MyTableWidget(QWidget):
         self.posClicked(True)
         self.absposClicked(True)
         
-import xmlrpc.client
     
 
 
