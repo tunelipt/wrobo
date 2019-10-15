@@ -16,6 +16,8 @@ import time
 import wrobo
 import os.path
 
+from wrobolib import robostart
+
 if __name__ == '__main__':  
     
     parser = argparse.ArgumentParser(description="wrobo")
@@ -26,7 +28,7 @@ if __name__ == '__main__':
     
     args = parser.parse_args()
     
-    win = wrobo.WRoboServer(False, args.ip, args.port, False, True)
+    win = robostart.WRoboServer(False, args.ip, args.port, False, True)
 
     # Create and display the splash screen
     splash_pix = QPixmap(os.path.join('wrobolib', 'ipt.jpg'))

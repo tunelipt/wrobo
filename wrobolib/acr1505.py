@@ -1,4 +1,3 @@
-# -*- coding: mbcs -*-
 # Created by makepy.py version 0.5.01
 # By python version 2.7.10 |Anaconda 2.3.0 (32-bit)| (default, May 28 2015, 17:02:00) [MSC v.1500 32 bit (Intel)]
 # From type library 'ComACRsrvr.dll'
