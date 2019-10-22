@@ -1,5 +1,4 @@
 import time
-import re
 
 
 import xmlrpc.client
@@ -10,35 +9,25 @@ class RoboClient:
     """Define todas as funcoes desempenhadas pelo robo, garantindo a comunicacao
     entre a interface e o terminal acr1505"""
     
-    def __init__(self, ip='localhost', port=9595):
+    def __init__(self):
         self.url = None
         self.robo = None
         self.connected = False
-        self.connect(ip, port)
         
 
-    def conect(self, ip, port, ntries=10, twait=2):
+    def connect(self, ip='localhost', port=9595):
         self.url = 'http://{}:{}'.format(ip, port)
         self.robo = xmlrpc.client.ServerProxy(self.url)
-        err = False
-        msg = "http://{}:{}".format(xaddr, xport)
-        for i in range(ntries):
-            time.sleep(twait)
-            try:
-                if self.robo.ping() == 123:
-                    self.connected = True
-                    return True
-                else:
-                    print("Tentando conectar ...")
-                    err = True
-            except:
-                print("Tentando conectar ...")
-                err = True
-        
-        if err:
-            QMessageBox.critical(self, 'Erro', "Não foi possível encontrar o servidor XML-RPC. Tente outro IP ou porta", QMessageBox.Ok)
+
+        try:
+            if self.robo.ping() == 123:
+                self.connected = True
+                return True
+            else:
+                return False
+        except:
             return False
-    
+        
         return False
     
     def move(self, x='', y='', z='', a=False, r=False, sync=False):
