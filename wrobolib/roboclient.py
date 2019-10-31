@@ -34,7 +34,7 @@ class RoboClient:
         """Inicializa a movimentacao do robo verificando todos os eixos
         
         O parametro s define o comando incremental na linguagem acr"""
-        self.robo.move(x=x, y=y, z=z, a=a, r=r, sync=sync)
+        self.robo.move(x, y, z, a, r, sync)
         
     def rmove(self, x='', y='', z='', sync=False):
         return self.move(x=x, y=y, z=z, r=True, sync=sync)
@@ -59,7 +59,7 @@ class RoboClient:
         
     def abs_position(self, pulses=False):
         """Indica a posicao atual absoluta do robo de acordo com os parametros de posicao definidos inicialmente"""
-        return self.robo.abs_position(pulses=pulses)
+        return self.robo.abs_position(pulses)
     
     
     def position(self):
